@@ -1,0 +1,11 @@
+default_context:
+    author_name: "Eva Maxfield Brown"
+    author_email: "evamaxfieldbrown@gmail.com"
+    hosting_github_username_or_org: "PugetSoundClinic-PIT"
+    project_name: "Speakerbox Analysis"
+    project_slug: "speakerbox-analysis"
+    python_slug: "speakerbox_analysis"
+    project_short_description: "Data processing and analysis functions for the Speakerbox Demographics and Interruptions paper."
+    hosting_pypi_username: "PugetSoundClinic-PIT"
+    version: "0.0.0"
+    license: "MIT License"
