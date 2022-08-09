@@ -13,7 +13,7 @@ name = "speakerbox-analysis"
 description = "Data processing and analysis functions for the Speakerbox Demographics and Interruptions paper."
 keywords = []
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 license = { text = "MIT License" }
 authors = [
   { email = "evamaxfieldbrown@gmail.com", name = "Eva Maxfield Brown" },
@@ -21,8 +21,6 @@ authors = [
 classifiers = [
   "Development Status :: 4 - Beta",
         "Natural Language :: English",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
 ]
 dynamic = ["version"]
@@ -123,7 +121,7 @@ show_error_codes = true
 [tool.flake8]
 max-line-length = 88
 ignore = "E203,E402,W291,W503"
-min-python-version = "3.8.0"
+min-python-version = "3.10.0"
 per-file-ignores = [
   "__init__.py:F401",
 ]
