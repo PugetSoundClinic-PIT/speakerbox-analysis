@@ -27,7 +27,7 @@ jobs:
           just generate-docs
           touch docs/_build/.nojekyll
       - name: Publish Docs
-        uses: JamesIves/github-pages-deploy-action@3.7.1
+        uses: JamesIves/github-pages-deploy-action@v4.4.0
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BASE_BRANCH: main # The branch the action should deploy from.
