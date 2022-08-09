@@ -1,0 +1,21 @@
+speakerbox\_analysis.bin package
+================================
+
+Submodules
+----------
+
+speakerbox\_analysis.bin.str\_len module
+----------------------------------------
+
+.. automodule:: speakerbox_analysis.bin.str_len
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: speakerbox_analysis.bin
+   :members:
+   :undoc-members:
+   :show-inheritance:

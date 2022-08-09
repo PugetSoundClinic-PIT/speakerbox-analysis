@@ -1,0 +1,29 @@
+speakerbox\_analysis package
+============================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   speakerbox_analysis.bin
+
+Submodules
+----------
+
+speakerbox\_analysis.example module
+-----------------------------------
+
+.. automodule:: speakerbox_analysis.example
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: speakerbox_analysis
+   :members:
+   :undoc-members:
+   :show-inheritance:
