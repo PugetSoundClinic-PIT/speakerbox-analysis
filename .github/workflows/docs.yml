@@ -27,6 +27,6 @@ jobs:
           just generate-docs
           touch docs/_build/.nojekyll
       - name: Publish Docs
-        uses: JamesIves/github-pages-deploy-action@4
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: docs/_build/
