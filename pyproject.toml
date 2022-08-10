@@ -121,6 +121,8 @@ ignore = [
   "Justfile",
   ".cookiecutter.yaml",
   "*docs/*",
+  "*docker/*",
+  "*terraform/*",
 ]
 
 [tool.mypy]
