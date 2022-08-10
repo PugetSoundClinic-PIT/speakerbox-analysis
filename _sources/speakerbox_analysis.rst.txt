@@ -20,6 +20,14 @@ speakerbox\_analysis.example module
    :undoc-members:
    :show-inheritance:
 
+speakerbox\_analysis.types module
+---------------------------------
+
+.. automodule:: speakerbox_analysis.types
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 
