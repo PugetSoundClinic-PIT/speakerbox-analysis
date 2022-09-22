@@ -12,6 +12,6 @@ except PackageNotFoundError:
 __author__ = "Eva Maxfield Brown"
 __email__ = "evamaxfieldbrown@gmail.com"
 
-from . import data
+from . import all_in_one, apply, data, model
 
-__all__ = ["data"]
+__all__ = ["all_in_one", "apply", "data", "model"]

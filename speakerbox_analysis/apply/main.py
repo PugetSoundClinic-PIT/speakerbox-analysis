@@ -12,14 +12,14 @@ from cdp_backend.annotation.speaker_labels import annotate
 from cdp_data import datasets, instances
 from tqdm import tqdm
 
-from . import _constants as constants
-from ._types import (
+from .. import _constants as constants
+from .._types import (
     PathLike,
     _TranscriptApplicationError,
     _TranscriptApplicationReturn,
     _TranscriptMeta,
 )
-from .model import pull_model
+from ..model import pull_model
 
 ###############################################################################
 
@@ -47,14 +47,14 @@ def _pull_or_use_model(model_top_hash: str, model_storage_path: str) -> None:
         )
 
 
-def apply_model_to_single_transcript(
+def single_transcript(
     transcript: PathLike,
     audio: PathLike,
     dest: Optional[PathLike] = None,
     model_top_hash: str = (
-        "453d51cc7006d2ba26640ba91eed67a5f8a9315d7c25d95f81072edb20054054"
+        constants.InstanceModelHashes.Seattle
     ),
-    model_storage_path: str = "trained-speakerbox",
+    model_storage_path: str = constants.TRAINED_MODEL_NAME,
     transcript_meta: Optional[_TranscriptMeta] = None,
     remote_storage_dir: Optional[str] = None,
     fs_kwargs: Dict[str, Any] = {},
@@ -154,7 +154,7 @@ def apply_model_to_single_transcript(
     )
 
 
-def apply_model_across_cdp_dataset(
+def across_cdp_dataset(
     instance: str = instances.CDPInstances.Seattle,
     start_datetime: Optional[Union[str, datetime]] = None,
     end_datetime: Optional[Union[str, datetime]] = None,
@@ -231,7 +231,7 @@ def apply_model_across_cdp_dataset(
     annotation_returns = []
     for _, row in tqdm(ds.iterrows(), desc="Transcripts annotated"):
         annotation_returns.append(
-            apply_model_to_single_transcript(
+            single_transcript(
                 transcript=row.transcript_path,
                 audio=row.audio_path,
                 dest=None,

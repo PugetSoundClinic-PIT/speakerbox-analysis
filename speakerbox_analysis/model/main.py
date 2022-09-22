@@ -25,7 +25,7 @@ log = logging.getLogger(__name__)
 ###############################################################################
 
 
-def pull_model(
+def pull(
     top_hash: Optional[str] = None,
     dest: PathLike = "./",
 ) -> None:
@@ -49,7 +49,7 @@ def pull_model(
     package[constants.TRAINED_MODEL_NAME].fetch(dest)
 
 
-def list_models(n: int = 10) -> None:
+def list(n: int = 10) -> None:
     """
     List all stored models.
 
@@ -84,7 +84,7 @@ def list_models(n: int = 10) -> None:
     log.info(f"Models:\n{single_print}")
 
 
-def train_and_eval_model(
+def train_and_eval(
     dataset_dir: PathLike = constants.PREPARED_DATASET_DIR,
     model_name: str = constants.TRAINED_MODEL_NAME,
 ) -> str:

@@ -4,10 +4,10 @@
 import logging
 from typing import Optional
 
-from . import _constants as constants
-from ._types import PathLike
-from .data import prepare_dataset_for_training
-from .model import train_and_eval_model
+from .. import _constants as constants
+from .._types import PathLike
+from ..data import prepare_for_model_training
+from ..model import train_and_eval
 
 ###############################################################################
 
@@ -33,18 +33,18 @@ def prepare_dataset_and_train_and_eval_model(
 
     See Also
     --------
-    speakerbox_analysis.data.prepare_dataset_for_training
+    speakerbox_analysis.data.prepare_for_model_training
         The function to prepare the dataset to be ready for training.
-    speakerbox_analysis.model.train_and_eval_model
+    speakerbox_analysis.model.train_and_eval
         The function to train and evaluate a model.
     """
-    prepare_dataset_for_training(
+    prepare_for_model_training(
         prepared_dataset_storage_dir=prepared_dataset_storage_dir,
         top_hash=top_hash,
         equalize=equalize,
     )
 
-    train_and_eval_model(
+    train_and_eval(
         dataset_dir=prepared_dataset_storage_dir,
         model_name=model_name,
     )

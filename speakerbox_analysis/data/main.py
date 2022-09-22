@@ -8,8 +8,13 @@ from typing import Optional
 import git
 from quilt3 import Package
 
-from . import _constants as constants
-from ._types import PathLike
+from .. import _constants as constants
+from .._types import PathLike
+import pandas as pd
+from quilt3 import Package
+from speakerbox import preprocess
+from speakerbox.datasets import seattle_2021_proto
+
 
 ###############################################################################
 
@@ -22,7 +27,7 @@ log = logging.getLogger(__name__)
 ###############################################################################
 
 
-def upload_training_data(dry_run: bool = False, force: bool = False) -> str:
+def upload_for_model_training(dry_run: bool = False, force: bool = False) -> str:
     """
     Upload data required for training a new model to S3.
 
@@ -101,7 +106,7 @@ def upload_training_data(dry_run: bool = False, force: bool = False) -> str:
     return pushed.top_hash
 
 
-def prepare_dataset_for_training(
+def prepare_for_model_training(
     prepared_dataset_storage_dir: PathLike = constants.PREPARED_DATASET_DIR,
     top_hash: Optional[str] = None,
     equalize: bool = False,
@@ -126,11 +131,6 @@ def prepare_dataset_for_training(
     dataset_path: Path
         Path to the prepared and serialized dataset.
     """
-    import pandas as pd
-    from quilt3 import Package
-    from speakerbox import preprocess
-    from speakerbox.datasets import seattle_2021_proto
-
     # Setup storage dir
     training_data_storage_dir = constants.TRAINING_DATA_DIR.resolve()
     training_data_storage_dir.mkdir(exist_ok=True)
