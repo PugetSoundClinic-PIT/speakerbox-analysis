@@ -158,11 +158,13 @@ def prepare_for_model_training(
     dataset_path: Path
         Path to the prepared and serialized dataset.
     """
+    log.info("Pulling data to prepare for model training...")
     # Setup storage dir
     training_data_storage_dir = Path(training_data_dir).resolve()
     training_data_storage_dir.mkdir(exist_ok=True)
 
     # Pull / prep original Seattle data
+    log.info("Unpacking the Seattle 2021 prototype annotation dataset...")
     seattle_2021_proto_dir = training_data_storage_dir / "seattle-2021-proto"
     seattle_2021_proto_dir = seattle_2021_proto.unpack(
         dest=seattle_2021_proto_dir,
@@ -189,6 +191,7 @@ def prepare_for_model_training(
     )
 
     # Download
+    log.info("Pulling pre-diarized and labelled audio...")
     package.fetch(training_data_storage_dir)
 
     # Expand diarized data

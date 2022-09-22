@@ -114,3 +114,5 @@ ENV/
 
 # Project specific
 training-data/
+prepared-speakerbox-dataset/
+trained-speakerbox/
