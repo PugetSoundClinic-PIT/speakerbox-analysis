@@ -11,8 +11,10 @@ TRAINING_DATA_DIRS_FOR_UPLOAD = [TRAINING_DATA_DIR / "diarized"]
 PREPARED_DATASET_DIR = Path(__file__).parent / "prepared-speakerbox-dataset"
 TRAINED_MODEL_NAME = "trained-speakerbox"
 
+
 class InstanceModelHashes:
     """
     Hashes for highest accuracy models for each CDP Instance.
     """
+
     Seattle = "453d51cc7006d2ba26640ba91eed67a5f8a9315d7c25d95f81072edb20054054"

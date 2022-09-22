@@ -14,6 +14,7 @@ PathLike = Union[str, Path]
 
 ###############################################################################
 
+
 @dataclass
 class _TranscriptMeta(DataClassJsonMixin):
     event_id: str

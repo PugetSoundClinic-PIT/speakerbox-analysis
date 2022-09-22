@@ -61,7 +61,9 @@ def list_models(n: int = 10) -> None:
     """
     # Get package versions
     lines = []
-    versions = list(list_package_versions(constants.TRAINED_MODEL_PACKAGE_NAME, constants.S3_BUCKET))
+    versions = list(
+        list_package_versions(constants.TRAINED_MODEL_PACKAGE_NAME, constants.S3_BUCKET)
+    )
     checked = 0
     for _, version in versions[::-1]:
         p = Package.browse(

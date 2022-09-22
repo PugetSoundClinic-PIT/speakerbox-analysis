@@ -2,25 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from datetime import datetime
-from pathlib import Path
-from typing import Any, Dict, Optional, Union
-from uuid import uuid4
-
-import pandas as pd
-from cdp_backend.annotation.speaker_labels import annotate
-from cdp_data import datasets, instances
-from tqdm import tqdm
+from typing import Optional
 
 from . import _constants as constants
-from ._types import (
-    PathLike,
-    _TranscriptApplicationError,
-    _TranscriptApplicationReturn,
-    _TranscriptMeta,
-)
+from ._types import PathLike
 from .data import prepare_dataset_for_training
-from .model import pull_model, train_and_eval_model
+from .model import train_and_eval_model
 
 ###############################################################################
 
@@ -31,6 +18,7 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 ###############################################################################
+
 
 def prepare_dataset_and_train_and_eval_model(
     prepared_dataset_storage_dir: PathLike = constants.PREPARED_DATASET_DIR,

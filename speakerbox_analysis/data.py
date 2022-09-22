@@ -47,7 +47,9 @@ def upload_training_data(dry_run: bool = False, force: bool = False) -> str:
         Git tree is dirty and force was not specified.
     """
     # Report with directory will be used for upload
-    log.info(f"Using contents of directories: {constants.TRAINING_DATA_DIRS_FOR_UPLOAD}")
+    log.info(
+        f"Using contents of directories: {constants.TRAINING_DATA_DIRS_FOR_UPLOAD}"
+    )
 
     # Create quilt package
     package = Package()
@@ -97,6 +99,7 @@ def upload_training_data(dry_run: bool = False, force: bool = False) -> str:
     )
     log.info(f"Completed package push. Result hash: {pushed.top_hash}")
     return pushed.top_hash
+
 
 def prepare_dataset_for_training(
     prepared_dataset_storage_dir: PathLike = constants.PREPARED_DATASET_DIR,

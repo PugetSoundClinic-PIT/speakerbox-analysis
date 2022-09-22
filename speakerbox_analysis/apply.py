@@ -31,6 +31,7 @@ log = logging.getLogger(__name__)
 
 ###############################################################################
 
+
 def _pull_or_use_model(model_top_hash: str, model_storage_path: str) -> None:
     # Pull model
     if Path(model_storage_path).exists():
@@ -44,6 +45,7 @@ def _pull_or_use_model(model_top_hash: str, model_storage_path: str) -> None:
             top_hash=model_top_hash,
             dest=model_storage_path,
         )
+
 
 def apply_model_to_single_transcript(
     transcript: PathLike,
@@ -270,9 +272,7 @@ def apply_model_across_cdp_dataset(
     # Store errors to CSV for easy viewing
     # Store results to parquet for fast load
     errors.to_csv("errors.csv", index=False)
-    results_save_path = (
-        f"results--start_{start_datetime}--end_{end_datetime}.parquet"
-    )
+    results_save_path = f"results--start_{start_datetime}--end_{end_datetime}.parquet"
     results.to_parquet(results_save_path)
 
     # Store errors and results to remote storage
