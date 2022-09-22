@@ -111,3 +111,8 @@ ENV/
 
 # VSCode
 .vscode
+
+# Project specific
+training-data/
+prepared-speakerbox-dataset/
+trained-speakerbox/

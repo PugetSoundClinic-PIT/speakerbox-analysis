@@ -1,7 +1,7 @@
 default:
   just --list
 
-IMAGE_NAME := 'evamaxfield/speakerbox-analysis'
+IMAGE_NAME := 'PugetSoundClinic-PIT/speakerbox-analysis'
 
 # build docker images
 build-docker:

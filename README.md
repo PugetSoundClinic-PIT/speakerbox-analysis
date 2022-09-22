@@ -14,10 +14,21 @@ Data processing and analysis functions for the Speakerbox Demographics and Inter
 
 ## Quickstart
 
-```python
-from speakerbox_analysis import example
+### Seattle Speakerbox Model
 
-print(example.str_len("hello"))  # prints 5
+Pull Seattle data for training, prepare and make splits, and 
+finally train and evaluate a new Seattle Speakerbox model.
+
+
+```bash
+speakerbox-analysis all_in_one prepare_dataset_and_train_and_eval_model
+```
+
+The above command is shorthand for the following:
+
+```bash
+speakerbox-analysis data prepare_for_model_training
+speakerbox-analysis model train_and_eval
 ```
 
 ## Documentation
