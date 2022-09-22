@@ -3,7 +3,7 @@
 
 import logging
 from pathlib import Path
-from typing import Optional, List
+from typing import Iterable, Optional
 
 import git
 import pandas as pd
@@ -26,7 +26,9 @@ log = logging.getLogger(__name__)
 
 
 def upload_for_model_training(
-    training_data_dirs_for_upload: List[PathLike] = constants.TRAINING_DATA_DIRS_FOR_UPLOAD,
+    training_data_dirs_for_upload: Iterable[
+        PathLike
+    ] = constants.TRAINING_DATA_DIRS_FOR_UPLOAD,
     package_name: str = constants.TRAINING_DATA_PACKAGE_NAME,
     s3_bucket_uri: str = constants.S3_BUCKET,
     dry_run: bool = False,
@@ -65,14 +67,13 @@ def upload_for_model_training(
         Git tree is dirty and force was not specified.
     """
     # Report with directory will be used for upload
-    log.info(
-        f"Using contents of directories: {training_data_dirs_for_upload}"
-    )
+    log.info(f"Using contents of directories: {training_data_dirs_for_upload}")
 
     # Create quilt package
     package = Package()
     for training_data_dir in training_data_dirs_for_upload:
-        package.set_dir(training_data_dir.name, training_data_dir)
+        training_data_dir_p = Path(training_data_dir)
+        package.set_dir(training_data_dir_p.name, training_data_dir_p)
 
     # Report package contents
     log.info(f"Package contents: {package}")
@@ -176,7 +177,7 @@ def prepare_for_model_training(
     # Expand annotated gecko data
     seattle_2021_ds = preprocess.expand_gecko_annotations_to_dataset(
         seattle_2021_ds_items,
-        audio_output_dir=training_data_dir / "chunked-audio-from-gecko",
+        audio_output_dir=training_data_storage_dir / "chunked-audio-from-gecko",
         overwrite=True,
     )
 
@@ -199,7 +200,7 @@ def prepare_for_model_training(
             "training-data/diarized/9f55f22d8e61/",
             "training-data/diarized/9f581faa5ece/",
         ],
-        audio_output_dir=training_data_dir / "chunked-audio-from-diarized",
+        audio_output_dir=training_data_storage_dir / "chunked-audio-from-diarized",
         overwrite=True,
     )
 

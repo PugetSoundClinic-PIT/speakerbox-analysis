@@ -83,9 +83,7 @@ def list_n(
     """
     # Get package versions
     lines = []
-    versions = list(
-        list_package_versions(trained_model_package_name, s3_bucket_uri)
-    )
+    versions = list(list_package_versions(trained_model_package_name, s3_bucket_uri))
     checked = 0
     for _, version in versions[::-1]:
         p = Package.browse(
