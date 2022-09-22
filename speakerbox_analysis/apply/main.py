@@ -51,7 +51,7 @@ def single_transcript(
     transcript: PathLike,
     audio: PathLike,
     dest: Optional[PathLike] = None,
-    model_top_hash: str = (constants.InstanceModelHashes.Seattle),
+    model_top_hash: str = constants.InstanceModelHashes.Seattle,
     model_storage_path: str = constants.TRAINED_MODEL_NAME,
     transcript_meta: Optional[_TranscriptMeta] = None,
     remote_storage_dir: Optional[str] = None,

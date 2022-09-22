@@ -26,6 +26,9 @@ log = logging.getLogger(__name__)
 
 
 def pull(
+    trained_model_package_name: str = constants.TRAINED_MODEL_PACKAGE_NAME,
+    s3_bucket_uri: str = constants.S3_BUCKET,
+    package_dir_with_model: str = constants.TRAINED_MODEL_NAME,
     top_hash: Optional[str] = None,
     dest: PathLike = "./",
 ) -> None:
@@ -34,6 +37,15 @@ def pull(
 
     Parameters
     ----------
+    trained_model_package_name: str
+        The quilt package name which stores the trained speakerbox model.
+        Default: "speakerbox/model"
+    s3_bucket_uri: str
+        The S3 bucket URI which stores the trained model package.
+        Default: "s3://evamaxfield-uw-equitensors-speakerbox"
+    package_dir_with_model: str
+        The quilt package directory which contains the model files.
+        Default: "trained-speakerbox"
     top_hash: Optional[str]
         Specific model version to pull.
         Default: None (latest)
@@ -42,14 +54,18 @@ def pull(
         Default: current directory
     """
     package = Package.browse(
-        constants.TRAINED_MODEL_PACKAGE_NAME,
-        constants.S3_BUCKET,
+        trained_model_package_name,
+        s3_bucket_uri,
         top_hash=top_hash,
     )
-    package[constants.TRAINED_MODEL_NAME].fetch(dest)
+    package[package_dir_with_model].fetch(dest)
 
 
-def list_n(n: int = 10) -> None:
+def list_n(
+    n: int = 10,
+    trained_model_package_name: str = constants.TRAINED_MODEL_PACKAGE_NAME,
+    s3_bucket_uri: str = constants.S3_BUCKET,
+) -> None:
     """
     List all stored models.
 
@@ -58,17 +74,23 @@ def list_n(n: int = 10) -> None:
     n: int
         Number of models to check
         Default: 10
+    trained_model_package_name: str
+        The quilt package name which stores the trained speakerbox model.
+        Default: "speakerbox/model"
+    s3_bucket_uri: str
+        The S3 bucket URI which stores the trained model package.
+        Default: "s3://evamaxfield-uw-equitensors-speakerbox"
     """
     # Get package versions
     lines = []
     versions = list(
-        list_package_versions(constants.TRAINED_MODEL_PACKAGE_NAME, constants.S3_BUCKET)
+        list_package_versions(trained_model_package_name, s3_bucket_uri)
     )
     checked = 0
     for _, version in versions[::-1]:
         p = Package.browse(
-            constants.TRAINED_MODEL_PACKAGE_NAME,
-            constants.S3_BUCKET,
+            trained_model_package_name,
+            s3_bucket_uri,
             top_hash=version,
         )
         for line in p.manifest:
@@ -87,6 +109,8 @@ def list_n(n: int = 10) -> None:
 def train_and_eval(
     dataset_dir: PathLike = constants.PREPARED_DATASET_DIR,
     model_name: str = constants.TRAINED_MODEL_NAME,
+    trained_model_package_name: str = constants.TRAINED_MODEL_PACKAGE_NAME,
+    s3_bucket_uri: str = constants.S3_BUCKET,
 ) -> str:
     """
     Train and evaluate a new speakerbox model.
@@ -99,6 +123,12 @@ def train_and_eval(
     model: str
         Name for the trained model.
         Default: trained-speakerbox
+    trained_model_package_name: str
+        The quilt package name which stores the trained speakerbox model.
+        Default: "speakerbox/model"
+    s3_bucket_uri: str
+        The S3 bucket URI which stores the trained model package.
+        Default: "s3://evamaxfield-uw-equitensors-speakerbox"
 
     Returns
     -------
@@ -125,8 +155,8 @@ def train_and_eval(
 
         # Upload
         pushed = package.push(
-            constants.TRAINED_MODEL_PACKAGE_NAME,
-            constants.S3_BUCKET,
+            trained_model_package_name,
+            s3_bucket_uri,
             message=message,
             force=True,
         )

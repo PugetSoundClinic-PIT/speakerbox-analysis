@@ -3,7 +3,7 @@
 
 import logging
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 
 import git
 import pandas as pd
@@ -25,12 +25,27 @@ log = logging.getLogger(__name__)
 ###############################################################################
 
 
-def upload_for_model_training(dry_run: bool = False, force: bool = False) -> str:
+def upload_for_model_training(
+    training_data_dirs_for_upload: List[PathLike] = constants.TRAINING_DATA_DIRS_FOR_UPLOAD,
+    package_name: str = constants.TRAINING_DATA_PACKAGE_NAME,
+    s3_bucket_uri: str = constants.S3_BUCKET,
+    dry_run: bool = False,
+    force: bool = False,
+) -> str:
     """
     Upload data required for training a new model to S3.
 
     Parameters
     ----------
+    training_data_dirs_for_upload: List[PathLike]
+        List of directory paths containing data required for training.
+        Default: ["./training-data/diarized/]
+    package_name: str
+        Name to give to the training data quilt package.
+        Default: "speakerbox/training-data"
+    s3_bucket_uri: str
+        URI of the S3 bucket to push to.
+        Default: "s3://evamaxfield-uw-equitensors-speakerbox"
     dry_run: bool
         Conduct dry run of the package generation. Will create a JSON manifest file
         of that package instead of uploading.
@@ -51,12 +66,12 @@ def upload_for_model_training(dry_run: bool = False, force: bool = False) -> str
     """
     # Report with directory will be used for upload
     log.info(
-        f"Using contents of directories: {constants.TRAINING_DATA_DIRS_FOR_UPLOAD}"
+        f"Using contents of directories: {training_data_dirs_for_upload}"
     )
 
     # Create quilt package
     package = Package()
-    for training_data_dir in constants.TRAINING_DATA_DIRS_FOR_UPLOAD:
+    for training_data_dir in training_data_dirs_for_upload:
         package.set_dir(training_data_dir.name, training_data_dir)
 
     # Report package contents
@@ -65,7 +80,7 @@ def upload_for_model_training(dry_run: bool = False, force: bool = False) -> str
     # Check for dry run
     if dry_run:
         # Attempt to build the package
-        top_hash = package.build(constants.TRAINING_DATA_PACKAGE_NAME)
+        top_hash = package.build(package_name)
 
         # Get resolved save path
         manifest_save_path = Path("upload-manifest.jsonl").resolve()
@@ -96,8 +111,8 @@ def upload_for_model_training(dry_run: bool = False, force: bool = False) -> str
 
     # Upload
     pushed = package.push(
-        constants.TRAINING_DATA_PACKAGE_NAME,
-        constants.S3_BUCKET,
+        package_name,
+        s3_bucket_uri,
         message=f"From commit: {commit}",
     )
     log.info(f"Completed package push. Result hash: {pushed.top_hash}")
@@ -105,6 +120,9 @@ def upload_for_model_training(dry_run: bool = False, force: bool = False) -> str
 
 
 def prepare_for_model_training(
+    training_data_dir: PathLike = constants.TRAINING_DATA_DIR,
+    uploaded_data_package_name: str = constants.TRAINING_DATA_PACKAGE_NAME,
+    s3_bucket_uri: str = constants.S3_BUCKET,
     prepared_dataset_storage_dir: PathLike = constants.PREPARED_DATASET_DIR,
     top_hash: Optional[str] = None,
     equalize: bool = False,
@@ -114,6 +132,16 @@ def prepare_for_model_training(
 
     Parameters
     ----------
+    training_data_dir: PathLike
+        The directory in which all training data will be placed.
+        Default: "./training-data"
+    uploaded_data_package_name: str
+        The quilt package name for any preprocessed data to pull down
+        (usually already labeled diarization chunks).
+        Default: "speakerbox/training-data"
+    s3_bucket_uri: str
+        The S3 bucket URI to pull data any preprocessed data from.
+        Default: "s3://evamaxfield-uw-equitensors-speakerbox"
     prepared_dataset_storage_dir: PathLike
         Directory name for where the prepared dataset should be stored.
         Default: prepared-speakerbox-dataset/
@@ -130,7 +158,7 @@ def prepare_for_model_training(
         Path to the prepared and serialized dataset.
     """
     # Setup storage dir
-    training_data_storage_dir = constants.TRAINING_DATA_DIR.resolve()
+    training_data_storage_dir = Path(training_data_dir).resolve()
     training_data_storage_dir.mkdir(exist_ok=True)
 
     # Pull / prep original Seattle data
@@ -148,14 +176,14 @@ def prepare_for_model_training(
     # Expand annotated gecko data
     seattle_2021_ds = preprocess.expand_gecko_annotations_to_dataset(
         seattle_2021_ds_items,
-        audio_output_dir=constants.TRAINING_DATA_DIR / "chunked-audio-from-gecko",
+        audio_output_dir=training_data_dir / "chunked-audio-from-gecko",
         overwrite=True,
     )
 
     # Pull diarized data
     package = Package.browse(
-        constants.TRAINING_DATA_PACKAGE_NAME,
-        constants.S3_BUCKET,
+        uploaded_data_package_name,
+        s3_bucket_uri,
         top_hash=top_hash,
     )
 
@@ -171,7 +199,7 @@ def prepare_for_model_training(
             "training-data/diarized/9f55f22d8e61/",
             "training-data/diarized/9f581faa5ece/",
         ],
-        audio_output_dir=constants.TRAINING_DATA_DIR / "chunked-audio-from-diarized",
+        audio_output_dir=training_data_dir / "chunked-audio-from-diarized",
         overwrite=True,
     )
 

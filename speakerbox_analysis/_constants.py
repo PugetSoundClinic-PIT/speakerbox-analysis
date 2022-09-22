@@ -6,9 +6,9 @@ from pathlib import Path
 TRAINING_DATA_PACKAGE_NAME = "speakerbox/training-data"
 TRAINED_MODEL_PACKAGE_NAME = "speakerbox/model"
 S3_BUCKET = "s3://evamaxfield-uw-equitensors-speakerbox"
-TRAINING_DATA_DIR = Path(__file__).parent / "training-data"
+TRAINING_DATA_DIR = "training-data"
 TRAINING_DATA_DIRS_FOR_UPLOAD = [TRAINING_DATA_DIR / "diarized"]
-PREPARED_DATASET_DIR = Path(__file__).parent / "prepared-speakerbox-dataset"
+PREPARED_DATASET_DIR = "prepared-speakerbox-dataset"
 TRAINED_MODEL_NAME = "trained-speakerbox"
 
 
