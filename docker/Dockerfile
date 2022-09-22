@@ -27,8 +27,7 @@ RUN ln -sf /usr/bin/python3.10 /usr/bin/python3 \
 RUN git clone https://github.com/PugetSoundClinic-PIT/speakerbox-analysis.git
 
 # Move to speakerbox specific and install
-WORKDIR /phd-infrastructures/speakerbox/
+WORKDIR /speakerbox-analysis/
 
 # Install all requirements
-RUN pip install -r ../requirements.txt \
-    && pip install -r requirements-apply.txt
+RUN pip install .
