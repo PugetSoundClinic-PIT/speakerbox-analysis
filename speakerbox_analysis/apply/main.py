@@ -19,7 +19,7 @@ from .._types import (
     _TranscriptApplicationReturn,
     _TranscriptMeta,
 )
-from ..model import pull_model
+from ..model import pull
 
 ###############################################################################
 
@@ -41,7 +41,7 @@ def _pull_or_use_model(model_top_hash: str, model_storage_path: str) -> None:
             f"Pulling and using model from hash: '{model_top_hash}' "
             f"(storing to: '{model_storage_path}')"
         )
-        pull_model(
+        pull(
             top_hash=model_top_hash,
             dest=model_storage_path,
         )
@@ -51,9 +51,7 @@ def single_transcript(
     transcript: PathLike,
     audio: PathLike,
     dest: Optional[PathLike] = None,
-    model_top_hash: str = (
-        constants.InstanceModelHashes.Seattle
-    ),
+    model_top_hash: str = (constants.InstanceModelHashes.Seattle),
     model_storage_path: str = constants.TRAINED_MODEL_NAME,
     transcript_meta: Optional[_TranscriptMeta] = None,
     remote_storage_dir: Optional[str] = None,

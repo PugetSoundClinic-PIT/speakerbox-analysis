@@ -11,8 +11,8 @@ from datasets import DatasetDict
 from quilt3 import Package, list_package_versions
 from speakerbox import eval_model, train
 
-from . import _constants as constants
-from ._types import PathLike
+from .. import _constants as constants
+from .._types import PathLike
 
 ###############################################################################
 
@@ -49,7 +49,7 @@ def pull(
     package[constants.TRAINED_MODEL_NAME].fetch(dest)
 
 
-def list(n: int = 10) -> None:
+def list_n(n: int = 10) -> None:
     """
     List all stored models.
 

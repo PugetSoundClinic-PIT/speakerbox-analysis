@@ -6,15 +6,13 @@ from pathlib import Path
 from typing import Optional
 
 import git
-from quilt3 import Package
-
-from .. import _constants as constants
-from .._types import PathLike
 import pandas as pd
 from quilt3 import Package
 from speakerbox import preprocess
 from speakerbox.datasets import seattle_2021_proto
 
+from .. import _constants as constants
+from .._types import PathLike
 
 ###############################################################################
 
