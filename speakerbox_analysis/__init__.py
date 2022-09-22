@@ -11,3 +11,7 @@ except PackageNotFoundError:
 
 __author__ = "Eva Maxfield Brown"
 __email__ = "evamaxfieldbrown@gmail.com"
+
+from . import data
+
+__all__ = ["data"]
