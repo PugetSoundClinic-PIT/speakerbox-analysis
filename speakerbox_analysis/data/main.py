@@ -3,10 +3,11 @@
 
 import logging
 from pathlib import Path
-from typing import Iterable, Optional
+from typing import Any, Dict, Iterable, Optional
 
 import git
 import pandas as pd
+import s3fs
 from quilt3 import Package
 from speakerbox import preprocess
 from speakerbox.datasets import seattle_2021_proto
@@ -219,3 +220,36 @@ def prepare_for_model_training(
     # Store to disk
     dataset.save_to_disk(prepared_dataset_storage_dir)
     return Path(prepared_dataset_storage_dir)
+
+
+def fetch_annotated_transcripts(
+    remote_storage_dir: str,
+    local_storage_dir: PathLike = constants.ANNOTATED_DATA_DIR,
+    fs_kwargs: Dict[str, Any] = {},
+) -> Path:
+    """
+    Parameters
+    ----------
+    fs_kwargs: Dict[str, Any]
+        Extra arguments to pass to the created file system connection.
+
+    See Also
+    --------
+    speakerbox_analysis.apply.main.across_cdp_dataset
+        The function used to generate this dataset.
+    """
+    if remote_storage_dir:
+        # Clean up storage dir tail
+        if remote_storage_dir[-1] == "/":
+            remote_storage_dir = remote_storage_dir[:-1]
+        if remote_storage_dir.startswith("s3://"):
+            remote_storage_dir = remote_storage_dir.replace("s3://", "")
+
+    # Create connection to s3
+    fs = s3fs.S3FileSystem(**fs_kwargs)
+
+    # Errors and results file
+    local_storage_dir = Path(local_storage_dir)
+    local_storage_dir.mkdir(exist_ok=True, parents=True)
+    fs.get(f"s3://{remote_storage_dir}", f"{local_storage_dir}/", recursive=True)
+    return local_storage_dir

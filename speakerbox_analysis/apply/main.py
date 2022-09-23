@@ -8,6 +8,7 @@ from typing import Any, Dict, Optional, Union
 from uuid import uuid4
 
 import pandas as pd
+import s3fs
 from cdp_backend.annotation.speaker_labels import annotate
 from cdp_data import datasets, instances
 from tqdm import tqdm
@@ -128,8 +129,6 @@ def single_transcript(
 
     # Optionally store to S3
     if remote_storage_dir:
-        import s3fs
-
         fs = s3fs.S3FileSystem(**fs_kwargs)
 
         # Make remote path
@@ -275,8 +274,6 @@ def across_cdp_dataset(
 
     # Store errors and results to remote storage
     if remote_storage_dir:
-        import s3fs
-
         fs = s3fs.S3FileSystem(**fs_kwargs)
 
         # Shove errors and results to remote
