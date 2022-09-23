@@ -116,3 +116,4 @@ ENV/
 training-data/
 prepared-speakerbox-dataset/
 trained-speakerbox/
+annotated-dataset/

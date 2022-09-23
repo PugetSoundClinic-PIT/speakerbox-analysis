@@ -10,6 +10,7 @@ TRAINING_DATA_DIR = Path("training-data")
 TRAINING_DATA_DIRS_FOR_UPLOAD = [TRAINING_DATA_DIR / "diarized"]
 PREPARED_DATASET_DIR = "prepared-speakerbox-dataset"
 TRAINED_MODEL_NAME = "trained-speakerbox"
+ANNOTATED_DATA_DIR = Path("annotated-dataset")
 
 
 class InstanceModelHashes:
