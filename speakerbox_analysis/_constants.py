@@ -17,4 +17,4 @@ class InstanceModelHashes:
     Hashes for highest accuracy models for each CDP Instance.
     """
 
-    Seattle = "453d51cc7006d2ba26640ba91eed67a5f8a9315d7c25d95f81072edb20054054"
+    Seattle = "15148ff0e8cb56a455ce6b41f4bb744c966baa9b1d99c0925b25cf200aa7b9a6"
