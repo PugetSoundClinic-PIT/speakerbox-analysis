@@ -28,12 +28,6 @@ class SpeakingTimeProgress(DataClassJsonMixin):
 
 
 @dataclass
-class SpeakerTimeseries(DataClassJsonMixin):
-    name: Optional[str]
-    timeseries: List[SpeakingTimeProgress]
-
-
-@dataclass
 class SpeakingTime(DataClassJsonMixin):
     name: Optional[str]
     sum_: float
@@ -46,8 +40,9 @@ class SpeakingTime(DataClassJsonMixin):
 
 @dataclass
 class SpeakingTimesReturn(DataClassJsonMixin):
-    speaking_times: pd.DataFrame
-    speaker_timeseries: List[SpeakerTimeseries]
+    stats: pd.DataFrame
+    sparse_timeseries: pd.DataFrame
+    filled_timeseries: pd.DataFrame
 
 
 def _speaking_times_single(transcript_path: Path) -> SpeakingTimesReturn:
@@ -59,8 +54,12 @@ def _speaking_times_single(transcript_path: Path) -> SpeakingTimesReturn:
     with open(transcript_path, "r") as open_f:
         transcript = Transcript.from_json(open_f.read())
 
-    # Agg sentences also calc total speaking time of meeting
-    sum_speaking_time: float = 0.0
+    # Calc total meeting duration
+    meeting_duration = (
+        transcript.sentences[-1].end_time - transcript.sentences[0].start_time
+    )
+
+    # Agg sentences
     speaker_sentences: Dict[Optional[str], List[Sentence]] = {}
     for sentence in transcript.sentences:
         # Create new speaker with sentence list or append
@@ -69,11 +68,8 @@ def _speaking_times_single(transcript_path: Path) -> SpeakingTimesReturn:
         else:
             speaker_sentences[sentence.speaker_name].append(sentence)
 
-        # Add more time to sum
-        sum_speaking_time += sentence.end_time - sentence.start_time
-
     # Construct speaking timeseries windows
-    window_duration = sum_speaking_time / 100
+    window_duration = meeting_duration / 100
     sentence_timeseries_windows: List[List[Sentence]] = []
     current_window_sentences = []
     current_window_start_time = 0.0
@@ -129,7 +125,7 @@ def _speaking_times_single(transcript_path: Path) -> SpeakingTimesReturn:
                 ]
             )
 
-            # Only add stats if vec contains an element
+            # Calc stats if count is greater than 0
             count_ = len(vec)
             if count_ >= 0:
                 speaker_timeseries[speaker].append(
@@ -144,36 +140,64 @@ def _speaking_times_single(transcript_path: Path) -> SpeakingTimesReturn:
                     )
                 )
 
+    # Convert timeseries to DataFrames
+    sparse_timeseries_frames = []
+    filled_timeseries_frames = []
+    for speaker, timeseries in speaker_timeseries.items():
+        # Generate blank frame to fill in data
+        filled_timeseries = pd.DataFrame(
+            {
+                "progress": range(100),
+                "sum_": 0,
+                "mean_": 0,
+                "median_": 0,
+                "max_": 0,
+                "std_": 0,
+                "count_": 0,
+            }
+        )
+
+        # Read data into frame
+        sparse_timeseries = pd.DataFrame([stp.to_dict() for stp in timeseries])
+
+        # Fill in data to the full frame
+        filled_timeseries.index = filled_timeseries.progress
+        sparse_timeseries.index = sparse_timeseries.progress
+        for attr in ["sum_", "mean_", "median_", "max_", "std_", "count_"]:
+            filled_timeseries[attr] = sparse_timeseries[attr]
+
+        # Fill the NaNs with 0
+        filled_timeseries = filled_timeseries.fillna(0)
+
+        # Add the speaker name column
+        sparse_timeseries["speaker"] = str(speaker)
+        filled_timeseries["speaker"] = str(speaker)
+
+        # Append to all records
+        sparse_timeseries_frames.append(sparse_timeseries)
+        filled_timeseries_frames.append(filled_timeseries)
+
     # Calculations
     speaker_stats: List[SpeakingTime] = []
     for speaker, sentences in speaker_sentences.items():
         # Get speaker duration time vectors
         vec = np.array([(s.end_time - s.start_time) for s in sentences])
-
-        # Only add stats if vec contains an element
-        count_ = len(vec)
-        if count_ >= 0:
-            speaker_stats.append(
-                SpeakingTime(
-                    name=speaker,
-                    sum_=vec.sum(),
-                    mean_=vec.mean(),
-                    median_=np.median(vec),
-                    max_=vec.max(),
-                    std_=vec.std(),
-                    count_=count_,
-                )
+        speaker_stats.append(
+            SpeakingTime(
+                name=speaker,
+                sum_=vec.sum(),
+                mean_=vec.mean(),
+                median_=np.median(vec),
+                max_=vec.max(),
+                std_=vec.std(),
+                count_=len(vec),
             )
+        )
 
     return SpeakingTimesReturn(
-        speaking_times=pd.DataFrame([stats.to_dict() for stats in speaker_stats]),
-        speaker_timeseries=[
-            SpeakerTimeseries(
-                name=speaker,
-                timeseries=timeseries,
-            )
-            for speaker, timeseries in speaker_timeseries.items()
-        ],
+        stats=pd.DataFrame([stats.to_dict() for stats in speaker_stats]),
+        sparse_timeseries=pd.concat(sparse_timeseries_frames, ignore_index=True),
+        filled_timeseries=pd.concat(filled_timeseries_frames, ignore_index=True),
     )
 
 
