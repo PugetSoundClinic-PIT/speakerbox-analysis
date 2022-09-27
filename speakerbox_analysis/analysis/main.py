@@ -84,52 +84,16 @@ def _speaking_times_single(
     current_window_start_time = 0.0
     current_window_end_time = current_window_start_time + window_duration
     for sentence in transcript.sentences:
-        # Include the sentence in the current window if a majority of the
-        # segment is in the window
-        overlap = max(
-            0,
-            min(current_window_end_time, sentence.end_time)
-            - max(current_window_start_time, sentence.start_time),
-        )
-        sentence_duration = sentence.end_time - sentence.start_time
-
-        # Sometimes there are sentences that are so short they are
-        # stored as 0.0 (floating point / rounding math likely)
-        # If we detect any of these, set the sentence to 0.1
-        #
-        # Example 0.0 Duration Sentence:
-        # Sentence(
-        #   index=673,
-        #   confidence=0.8829831480979919,
-        #   start_time=3406.1,
-        #   end_time=3406.1,
-        #   words=[
-        #       Word(
-        #           index=0,
-        #           start_time=3406.1,
-        #           end_time=3406.1,
-        #           text='yeah',
-        #           annotations=None
-        #       )
-        #   ],
-        #   text='Yeah.',
-        #   speaker_index=None,
-        #   speaker_name=None,
-        #   annotations=None
-        # )
-        if sentence_duration == 0:
-            sentence_duration = 0.1
-
-        if overlap / sentence_duration >= 0.5:
+        # Include the sentence if it's start time begins within the window
+        if sentence.start_time >= current_window_start_time and sentence.start_time < current_window_end_time:
             current_window_sentences.append(sentence)
 
-        # If the overlap percent isn't high enough we know we need
-        # to move to the next window
+        # If the start time begins in the next window, make a new window collection
         else:
             sentence_timeseries_windows.append(current_window_sentences)
             current_window_sentences = [sentence]
-            current_window_start_time += window_duration
-            current_window_end_time = current_window_start_time + window_duration
+            current_window_start_time = current_window_end_time
+            current_window_end_time += window_duration
 
     # Append the last group
     sentence_timeseries_windows.append(current_window_sentences)
