@@ -117,3 +117,5 @@ training-data/
 prepared-speakerbox-dataset/
 trained-speakerbox/
 annotated-dataset/
+kde-progress-occurances.png
+mean-windowed-speaking-time.png

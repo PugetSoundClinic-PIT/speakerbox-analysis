@@ -10,10 +10,17 @@ import numpy as np
 import pandas as pd
 from cdp_backend.pipeline.transcript_model import Sentence, Transcript
 from dataclasses_json import DataClassJsonMixin
+from tqdm.contrib.concurrent import process_map
 
 from .._types import PathLike
 
 ###############################################################################
+
+
+@dataclass
+class SpeakingTimeComputationParams:
+    session_id: str
+    transcript_path: Path
 
 
 @dataclass
@@ -45,13 +52,15 @@ class SpeakingTimesReturn(DataClassJsonMixin):
     filled_timeseries: pd.DataFrame
 
 
-def _speaking_times_single(transcript_path: Path) -> SpeakingTimesReturn:
+def _speaking_times_single(
+    params: SpeakingTimeComputationParams,
+) -> SpeakingTimesReturn:
     # For a single transcript get list of speaker names
     # for each speaker create stats
     # Also get sum of all speakers
 
     # Open transcript
-    with open(transcript_path, "r") as open_f:
+    with open(params.transcript_path, "r") as open_f:
         transcript = Transcript.from_json(open_f.read())
 
     # Calc total meeting duration
@@ -83,6 +92,33 @@ def _speaking_times_single(transcript_path: Path) -> SpeakingTimesReturn:
             - max(current_window_start_time, sentence.start_time),
         )
         sentence_duration = sentence.end_time - sentence.start_time
+
+        # Sometimes there are sentences that are so short they are
+        # stored as 0.0 (floating point / rounding math likely)
+        # If we detect any of these, set the sentence to 0.1
+        #
+        # Example 0.0 Duration Sentence:
+        # Sentence(
+        #   index=673,
+        #   confidence=0.8829831480979919,
+        #   start_time=3406.1,
+        #   end_time=3406.1,
+        #   words=[
+        #       Word(
+        #           index=0,
+        #           start_time=3406.1,
+        #           end_time=3406.1,
+        #           text='yeah',
+        #           annotations=None
+        #       )
+        #   ],
+        #   text='Yeah.',
+        #   speaker_index=None,
+        #   speaker_name=None,
+        #   annotations=None
+        # )
+        if sentence_duration == 0:
+            sentence_duration = 0.1
 
         if overlap / sentence_duration >= 0.5:
             current_window_sentences.append(sentence)
@@ -194,29 +230,63 @@ def _speaking_times_single(transcript_path: Path) -> SpeakingTimesReturn:
             )
         )
 
+    # Construct all dataframes and add session_id column
+    stats = pd.DataFrame([stats.to_dict() for stats in speaker_stats])
+    sparse_timeseries = pd.concat(sparse_timeseries_frames, ignore_index=True)
+    filled_timeseries = pd.concat(filled_timeseries_frames, ignore_index=True)
+    stats["session_id"] = params.session_id
+    sparse_timeseries["session_id"] = params.session_id
+    filled_timeseries["session_id"] = params.session_id
+
     return SpeakingTimesReturn(
-        stats=pd.DataFrame([stats.to_dict() for stats in speaker_stats]),
-        sparse_timeseries=pd.concat(sparse_timeseries_frames, ignore_index=True),
-        filled_timeseries=pd.concat(filled_timeseries_frames, ignore_index=True),
+        stats=stats,
+        sparse_timeseries=sparse_timeseries,
+        filled_timeseries=filled_timeseries,
     )
 
 
 ###############################################################################
 
 
-def run(results_dir: PathLike, analysis_results_dir: PathLike = "weird") -> Path:
+def run(
+    transcripts_dir: PathLike, analysis_results_dir: PathLike = "weird"
+) -> SpeakingTimesReturn:
     # Read all result files
-    results_dir = Path(results_dir)
-    results = (
-        dd.read_parquet(f"{results_dir}/*.parquet").compute().reset_index(drop=True)
+    transcripts_dir = Path(transcripts_dir)
+    transcripts_meta_df = (
+        dd.read_parquet(f"{transcripts_dir}/*.parquet").compute().reset_index(drop=True)
     )
 
     # Create new column with shortened transcript paths
-    results["local_transcript_path"] = results["stored_annotated_transcript_uri"].apply(
-        lambda uri: results_dir / uri.rsplit("/")[-1]
+    transcripts_meta_df["local_transcript_path"] = transcripts_meta_df[
+        "stored_annotated_transcript_uri"
+    ].apply(lambda uri: transcripts_dir / uri.rsplit("/")[-1])
+
+    # Run speaker time calculations across all the transcripts
+    speaking_time_results = process_map(
+        _speaking_times_single,
+        [
+            SpeakingTimeComputationParams(
+                session_id=r.session_id, transcript_path=r.local_transcript_path
+            )
+            for _, r in transcripts_meta_df.iterrows()
+        ],
+        desc="Computing speaking time statistics",
     )
 
-    # Calc speaking time of different speakers
+    # Agg results
+    speaking_stats = pd.concat(
+        [r.stats for r in speaking_time_results], ignore_index=True
+    )
+    sparse_timeseries = pd.concat(
+        [r.sparse_timeseries for r in speaking_time_results], ignore_index=True
+    )
+    filled_timeseries = pd.concat(
+        [r.filled_timeseries for r in speaking_time_results], ignore_index=True
+    )
 
-    print(results)
-    return results
+    return SpeakingTimesReturn(
+        stats=speaking_stats,
+        sparse_timeseries=sparse_timeseries,
+        filled_timeseries=filled_timeseries,
+    )
