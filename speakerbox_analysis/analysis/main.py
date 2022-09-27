@@ -85,7 +85,10 @@ def _speaking_times_single(
     current_window_end_time = current_window_start_time + window_duration
     for sentence in transcript.sentences:
         # Include the sentence if it's start time begins within the window
-        if sentence.start_time >= current_window_start_time and sentence.start_time < current_window_end_time:
+        if (
+            sentence.start_time >= current_window_start_time
+            and sentence.start_time < current_window_end_time
+        ):
             current_window_sentences.append(sentence)
 
         # If the start time begins in the next window, make a new window collection
