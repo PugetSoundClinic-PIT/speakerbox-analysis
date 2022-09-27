@@ -8,6 +8,7 @@ from typing import Dict, List, Optional
 import dask.dataframe as dd
 import numpy as np
 import pandas as pd
+import seaborn as sns
 from cdp_backend.pipeline.transcript_model import Sentence, Transcript
 from dataclasses_json import DataClassJsonMixin
 from tqdm.contrib.concurrent import process_map
@@ -15,6 +16,7 @@ from tqdm.contrib.concurrent import process_map
 from .._types import PathLike
 
 ###############################################################################
+# Compute
 
 
 @dataclass
@@ -209,6 +211,35 @@ def _speaking_times_single(
         stats=stats,
         sparse_timeseries=sparse_timeseries,
         filled_timeseries=filled_timeseries,
+    )
+
+
+###############################################################################
+# Plotting
+
+
+def _set_plotting_styles() -> None:
+    sns.set_context("paper")
+    sns.set_theme(
+        style="ticks", rc={"axes.spines.right": False, "axes.spines.top": False}
+    )
+    sns.set_style("darkgrid", {"grid.color": "#000000", "grid.linestyle": ":"})
+    sns.set_palette(
+        [
+            "#ff6a75",  # cherry-red
+            "#0060df",  # ocean-blue
+            "#068989",  # moss-green
+            "#712290",  # purple
+            "#FFA537",  # orange
+            "#FF2A8A",  # pink
+            "#9059FF",  # lavender
+            "#00B3F5",  # light-blue / sky-blue
+            "#005e5e",  # dark blueish green
+            "#C50143",  # dark-red / maroon
+            "#3fe1b0",  # seafoam / mint
+            "#063F96",  # dark-blue / navy-blue
+            "#FFD567",  # banana-yellow
+        ]
     )
 
 
