@@ -209,6 +209,7 @@ def prepare_for_model_training(
 
     # Combine into single
     combined_ds = pd.concat([seattle_2021_ds, diarized_ds], ignore_index=True)
+    combined_ds = combined_ds.sample(n=(30 * 60) // 2)
 
     # Generate train test validate splits
     dataset, _ = preprocess.prepare_dataset(
